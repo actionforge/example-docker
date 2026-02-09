@@ -1,0 +1,27 @@
+permissions:
+  contents: read
+  packages: write
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build and Push Docker Image
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Run Graph
+        uses: actionforge/action@866e7df1ce5e84a2b32fda7414812ae72000dae8 # v0.14.6
+        with:
+          graph-file: build.act

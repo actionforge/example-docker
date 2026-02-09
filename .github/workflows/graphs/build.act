@@ -1,0 +1,62 @@
+entry: gh-start
+nodes:
+  - id: gh-start
+    type: core/gh-start@v1
+    position:
+      x: 10
+      y: 10
+  - id: checkout
+    type: github.com/actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+    position:
+      x: 430
+      y: 720
+  - id: login
+    type: github.com/docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+    position:
+      x: 900
+      y: 720
+    inputs:
+      registry: ghcr.io
+      username: ${{ github.actor }}
+      password: ${{ github.token }}
+  - id: build-push
+    type: >-
+      github.com/docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83
+    position:
+      x: 1280
+      y: 700
+    inputs:
+      push: 'true'
+      tags: ghcr.io/${{ github.repository }}:latest
+connections: []
+executions:
+  - src:
+      node: gh-start
+      port: exec-on_push
+    dst:
+      node: checkout
+      port: exec
+  - src:
+      node: gh-start
+      port: exec-on_pull_request
+    dst:
+      node: checkout
+      port: exec
+  - src:
+      node: gh-start
+      port: exec-on_workflow_dispatch
+    dst:
+      node: checkout
+      port: exec
+  - src:
+      node: checkout
+      port: exec-success
+    dst:
+      node: login
+      port: exec
+  - src:
+      node: login
+      port: exec-success
+    dst:
+      node: build-push
+      port: exec
